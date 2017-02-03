@@ -7,6 +7,7 @@ from multiprocessing import Process, Value, Array
 import time
 import numpy as np
 import BMI_baseline as baseline
+import os
 
 #global variables dictionary
 global_vars = {
@@ -26,7 +27,8 @@ global_vars = {
 	"t2_event":12,
 	"miss_event":10,
 	"min_freq":400,
-	"max_freq":15000
+	"max_freq":15000,
+	"save_file":r"D:\data\test.txt"
 }
 ##global state variable to be shared between processes
 engage = Value('i', 0)
@@ -50,7 +52,7 @@ Args:
 -t1; t2: cursor values of target 1 and 2
 """
 def set_globals(e1_list, e2_list, samp_int, smooth_int, timeout, timeout_pause, t1, 
-	t2, mid, min_freq, max_freq):
+	t2, mid, min_freq, max_freq, save_file):
 	global global_vars
 	global_vars['e1_list'] = e1_list
 	global_vars['e2_list'] = e2_list
@@ -64,6 +66,8 @@ def set_globals(e1_list, e2_list, samp_int, smooth_int, timeout, timeout_pause, 
 	global_vars['mid'] = mid
 	global_vars['max_freq'] = max_freq
 	global_vars['min_freq'] = min_freq
+	global_vars['save_file'] = os.path.normpath(save_file)
+
 
 """
 init_BMI: a function to initialize BMI and start the relevant processes. 
@@ -80,7 +84,7 @@ Args:
 -t1; t2: cursor values of target 1 and 2
 """
 def start_BMI(e1_list, e2_list, samp_int, smooth_int, timeout, timeout_pause, 
-	t1, t2, mid, min_freq, max_freq):
+	t1, t2, mid, min_freq, max_freq, save_file):
 	global engage
 	global time_remaining
 	global global_vars
@@ -90,10 +94,12 @@ def start_BMI(e1_list, e2_list, samp_int, smooth_int, timeout, timeout_pause,
 	##activate state variables
 	engage.value = 1
 	##set global variables
-	set_globals(e1_list, e2_list, samp_int, smooth_int, timeout, timeout_pause, t1, t2, mid, min_freq, max_freq)
+	set_globals(e1_list, e2_list, samp_int, smooth_int, timeout, timeout_pause, t1, t2, 
+		mid, min_freq, max_freq, save_file)
 	##initialize the processes to link feedback and cursor state
 	##cursor function 
-	decoder_p = Process(target = decoder, args = (global_vars, engage, time_remaining, num_t1, num_t2, num_miss))
+	decoder_p = Process(target = decoder, args = (global_vars, engage, time_remaining, 
+		num_t1, num_t2, num_miss))
 	#timeout clock function
 	timer_p = Process(target = timeout_clock, args = (engage, time_remaining))
 	##start the processes
@@ -111,6 +117,8 @@ decoder- a function to acquire and the BMI cursor Value
 from the MAP server, and check for target hits.
 """
 def decoder(var_dict, engage_var, timer_var, num_t1, num_t2, num_miss):
+	##open the file to save the data
+	fileout = open(var_dict['save_file'],'w')
 	##initialize the timer
 	timer_var.value = var_dict['timeout']
 	br.connect_client()
@@ -127,13 +135,18 @@ def decoder(var_dict, engage_var, timer_var, num_t1, num_t2, num_miss):
 		##acquire the cursor value and set the feedback accordingly
 		time.sleep(var_dict['samp_int']/1000.0)
 		cursor = br.get_cursor_val()
-		br.set_feedback(map_func(cursor))
+		fb = map_func(cursor)
+		br.set_feedback(fb)
+		##write this data to file
+		fileout.write(str(cursor)+","+str(fb)+"\n") ##this will save cursor val, feedback val on a line for each sample
 		##check for T1
 		if cursor >= var_dict['t1']:
 			##create a timestamp
 			br.send_event(var_dict['t1_event'])
 			##trigger ABET
 			br.trig_nidaq(var_dict['abet_dev'], var_dict['t1_port'])
+			##save to the log file
+			fileout.write("T1\n")
 			##pause feedback
 			br.stop_feedback()
 			##increment the score
@@ -157,6 +170,8 @@ def decoder(var_dict, engage_var, timer_var, num_t1, num_t2, num_miss):
 			br.send_event(var_dict['t2_event'])
 			##trigger ABET
 			br.trig_nidaq(var_dict['abet_dev'], var_dict['t2_port'])
+			##save to the log file
+			fileout.write("T2\n")
 			##pause feedback
 			br.stop_feedback()
 			##increment the score
@@ -184,6 +199,8 @@ def decoder(var_dict, engage_var, timer_var, num_t1, num_t2, num_miss):
 			num_miss.value += 1
 			##play white noise
 			br.play_noise()
+			##save to the log file
+			fileout.write("Timeout")
 			print "Timeout!"
 			##pause for given timeout
 			time.sleep(var_dict['timeout_pause'])
@@ -194,6 +211,7 @@ def decoder(var_dict, engage_var, timer_var, num_t1, num_t2, num_miss):
 	br.stop_cursor()
 	br.stop_feedback()
 	br.disconnect_client()
+	fileout.close()
 	print "BMI stopped!"
 
 """

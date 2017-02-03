@@ -228,6 +228,8 @@ timeOutEntry = entryBox(BMIVarsFrame2, "Timeout (s)", '10')
 
 baselineDurationEntry = entryBox(BMIVarsFrame2, "Baseline Duration (min)", '15')
 
+saveFileEntry = entryBox(BMIVarsFrame2, "D:/data/log.txt")
+
 #buttons
 setVarsButton = Tk.Button(BMIVarsFrame2, text = "Set BMI Variables")
 setVarsButton.pack(side = 'top')
@@ -295,9 +297,10 @@ def start_BMI():
 		smooth_int = int(windowEntry.entryString.get())
 		timeout = int(timeLimitEntry.entryString.get())
 		timeout_pause = int(timeOutEntry.entryString.get())
+		save_file = saveFileEntry.entryString.get()
 		#set params
 		BMI_engine_rn.start_BMI(e1_list, e2_list, samp_int, smooth_int, timeout, timeout_pause, 
-			t1, t2, mid, min_freq, max_freq)
+			t1, t2, mid, min_freq, max_freq, save_file)
 
 def stop_BMI():
 	BMI_engine_rn.stop_BMI()
@@ -328,9 +331,10 @@ def set_params():
 		smooth_int = int(windowEntry.entryString.get())
 		timeout = int(timeLimitEntry.entryString.get())
 		timeout_pause = int(timeOutEntry.entryString.get())
+		save_file = saveFileEntry.entryString.get()
 		#set params
 		BMI_engine_rn.set_globals(e1_list, e2_list, samp_int, smooth_int, timeout, timeout_pause, t1, 
-			t2, mid, min_freq, max_freq)
+			t2, mid, min_freq, max_freq, save_file)
 
 def collect_baseline():
 	BMI_baseline.collect_baseline(list(e1.unitList), list(e2.unitList), 
