@@ -228,7 +228,7 @@ timeOutEntry = entryBox(BMIVarsFrame2, "Timeout (s)", '10')
 
 baselineDurationEntry = entryBox(BMIVarsFrame2, "Baseline Duration (min)", '15')
 
-saveFileEntry = entryBox(BMIVarsFrame2, "D:/data/log.txt")
+saveFileEntry = entryBox(BMIVarsFrame2, "Save file", "D:/data/log.txt")
 
 #buttons
 setVarsButton = Tk.Button(BMIVarsFrame2, text = "Set BMI Variables")
