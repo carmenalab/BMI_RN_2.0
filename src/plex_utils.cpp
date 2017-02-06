@@ -71,6 +71,7 @@ extern "C" void send_user_event(int chan)
 	PL_SendUserEvent(chan);
 }
 
+
 //helper function to calculate the mean of a double array
 //input vals are a pointer to the array, and the length of the array
 extern "C" float arr_mean(int* d, int length)
