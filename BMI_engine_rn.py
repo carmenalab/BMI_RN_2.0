@@ -28,7 +28,7 @@ global_vars = {
 	"abet_dev":1,
 	"t1_port":1,
 	"t2_port":2,
-	"start_trigger":2
+	"start_trigger":0
 	"t1_event":11,
 	"t2_event":12,
 	"miss_event":10,
@@ -113,6 +113,8 @@ def start_BMI(e1_list, e2_list, samp_int, smooth_int, timeout, timeout_pause,
 	##start the processes
 	decoder_p.start()
 	timer_p.start()
+	##trigger the recording
+	br.trig_nidaq_ex(1,global_vars['start_trigger'],100)
 
 ##function to stop BMI
 def stop_BMI():
