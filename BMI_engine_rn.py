@@ -9,11 +9,6 @@ import numpy as np
 import BMI_baseline as baseline
 import os
 
-##trigger the nidaq channels to make sure they are set at 0
-br.trig_nidaq(1,global_vars['start_trigger'])
-br.trig_nidaq(1,global_vars['t1_port'])
-br.trig_nidaq(1,global_vars['t2_port'])
-
 #global variables dictionary
 global_vars = {
 	"e1_list":[],
@@ -37,6 +32,12 @@ global_vars = {
 	"save_file":r"D:\data\test.txt",
 	"reward_time":1000
 }
+
+##trigger the nidaq channels to make sure they are set at 0
+br.trig_nidaq(1,global_vars['start_trigger'])
+br.trig_nidaq(1,global_vars['t1_port'])
+br.trig_nidaq(1,global_vars['t2_port'])
+
 ##global state variable to be shared between processes
 engage = Value('i', 0)
 time_remaining = Value('i', 0)

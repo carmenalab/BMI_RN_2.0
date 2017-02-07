@@ -12,6 +12,7 @@ import matplotlib.animation as animation
 import BMI_baseline
 import BMI_engine_rn
 import BMI_RN as br
+import playback
 # implement the default mpl key bindings
 ##GLOBAL VARIABLES
 
@@ -252,6 +253,9 @@ updateScoreButton.pack(side = "top")
 plotButton = Tk.Button(BMIVarsFrame, text = "Start Plot")
 plotButton.pack(side = "top")
 
+startPbButton = Tk.Button(BMIVarsFrame, text = "Start playback")
+stopPbButton = Tk.Button(BMIVarsFrams, text = "Stop playback")
+
 scoreLabelVar = Tk.StringVar()
 scoreLabel = Tk.Label(BMIVarsFrame, textvariable = scoreLabelVar)
 scoreLabel.pack(side = "top")
@@ -335,6 +339,7 @@ def set_params():
 		#set params
 		BMI_engine_rn.set_globals(e1_list, e2_list, samp_int, smooth_int, timeout, timeout_pause, t1, 
 			t2, mid, min_freq, max_freq, save_file)
+		playback.set_globals(samp_int,smooth_int,timeout,timeout_pause,save_file)
 
 def collect_baseline():
 	BMI_baseline.collect_baseline(list(e1.unitList), list(e2.unitList), 
@@ -397,6 +402,18 @@ def start_plot():
 	line, = ax.plot(x, buff)
 	ani = animation.FuncAnimation(fig, animate, generate_data, interval=10)
 
+def startPlayback():
+	samp_int = int(sampleRateEntry.entryString.get())
+	smooth_int = int(windowEntry.entryString.get())
+	timeout = int(timeLimitEntry.entryString.get())
+	timeout_pause = int(timeOutEntry.entryString.get())
+	save_file = saveFileEntry.entryString.get()
+	playback.start_playback(samp_int,smooth_int,timeout,timeout_pause,save_file)
+
+def stopPlayback():
+	playback.stop_playback()
+
+
 setVarsButton.configure(command = set_params)
 startButton.configure(command = start_BMI)
 stopButton.configure(command = stop_BMI)
@@ -404,50 +421,14 @@ baselineButton.configure(command = collect_baseline)
 adaptButton.configure(command = set_targets)
 updateScoreButton.configure(command = update_score)
 plotButton.configure(command = start_plot)
+startPbButton.configure(command = startPlayback)
+stopPbButton.configure(command = stopPlayback)
 
 ########################################################################
 ########################################################################
-def start_plot():
-	root = Tk.Tk()
-	#make a real-time graph to visualize cursor data
-	fig = matplotlib.figure.Figure()
-	ax = fig.add_subplot(111)
-	ymin = float(t2Entry.entryString.get())
-	ymax = float(t1Entry.entryString.get())
-	ax.set_ylim(ymin,ymax)
-	ax.set_title("Real-time Cursor Position")
-	ax.set_ylabel("Cursor Value")
-	ax.set_xlabel("Time (s)")
-
-	x = np.linspace(0,5,500)
-
-	buff = np.zeros(500)        # x-array
-
-	def animate(data):
-	    line.set_ydata(data)  # update the data
-	    return line,
-
-	def generate_data():
-	  while True:
-	    buff[0:-1] = buff[1:]
-	    buff[-1] = br.get_cursor_val()
-	    yield buff
-
-	canvas = FigureCanvasTkAgg(fig, master=root)
-	canvas.get_tk_widget().grid(row = 1, column = 4)
-
-
-	line, = ax.plot(x, buff)
-	ani = animation.FuncAnimation(fig, animate, generate_data, interval=10)
 
 
 
-"""
-********TODO****** 
-
-
-
-"""
 
 
 

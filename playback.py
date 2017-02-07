@@ -4,6 +4,8 @@
 import BMI_RN as br
 import os
 from multiprocessing import Process, Value, Array
+import time
+
 
 ##a dictionary of global variables
 global_vars = {
@@ -11,11 +13,21 @@ global_vars = {
 	"smooth_int":0,
 	"timeout":0,
 	"timeout_pause":0,
+	"reward_time":1000,
+	"abet_dev":1,
+	"t1_port":1,
+	"t2_port":2,
+	"start_trigger":0,
 	"t1_event":11,
 	"t2_event":12,
 	"miss_event":10,
 	"log_file":r"D:\data\log.txt"
 }
+
+##trigger the nidaq channels to make sure they are set at 0
+br.trig_nidaq(1,global_vars['start_trigger'])
+br.trig_nidaq(1,global_vars['t1_port'])
+br.trig_nidaq(1,global_vars['t2_port'])
 
 ##global state variable to be shared between processes
 engage = Value('i', 0)
@@ -44,6 +56,26 @@ def read_line(string):
 		freq = string[comma_idx+1:-1]
 	return cval, freq
 
+###A function to spawn a process to run the playback. Input args are taken from start_BMI
+def start_playback(samp_int,smooth_int,timeout,timeout_pause,log_file):
+	global engage
+	##activate the state variable
+	engage.value=1
+	##set the global variables
+	set_globals(samp_int,smooth_int,timeout,timeout_pause,log_file)
+	##initialize the process to run the playback function
+	playback_p = Process(target=playback,args=(global_vars,engage))
+	##start the process
+	playback_p.start()
+	##trigger the recording
+	br.trig_nidaq_ex(1,global_vars['start_trigger'],100)
+
+###a function to stop playback
+def stop_playback():
+	global engage
+	engage.value = 0
+
+
 ### a function to run the simulation. Meant to be run in a separate process.
 def playback(var_dict,engage_var):
 	log = open(var_dict["log_file"],'r')
@@ -52,17 +84,19 @@ def playback(var_dict,engage_var):
 	##start the feedback process
 	br.start_feedback(freq, var_dict['samp_int'])
 	line = log.readline()[:-1] ##get the text for this line, excluding the return char
-	while line != "" ##case where you've reached the end of the log
+	while (line != "") and (engage_var.value != 0): ##case where you've reached the end of the log or the poison pill has been set
 		##sleep for the sample interval
 		time.sleep(var_dict['samp_int']/1000.0)
 		if line == "T1": ##case where a target 1 has been hit
 			br.send_event(var_dict['t1_event'])
+			br.trig_nidaq_ex(var_dict['abet_dev'], var_dict['t1_port'],var_dict['reward_time'])
 			print "T1!"
 			time.sleep(3)
 			##resume feedback from the last freq value
 			br.resume_feedback(freq)
 		elif line == "T2": ##case for target 2
 			br.send_event(var_dict['t2_event'])
+			br.trig_nidaq_ex(var_dict['abet_dev'], var_dict['t2_port'], var_dict['reward_time'])
 			print "T2!"
 			time.sleep(3)
 			##resume feedback from the last feedback value
