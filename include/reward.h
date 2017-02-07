@@ -19,6 +19,9 @@ int readPort (char *chan);
 //Trigger the behavior box. Arguments are a device number and a device channel number.
 extern "C" void trigger_abet(int device, int port);
 
+//Trigger the nidaq for a particular pulse duration. Same as above + the duration arg in ms
+extern "C" void trigger_abet_ex(int device, int port, int duration);
+
 //Get the value of the NIDAQ DIO device
 extern "C" int read_abet(int device, int port);
 

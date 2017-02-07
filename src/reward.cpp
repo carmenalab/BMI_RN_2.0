@@ -113,6 +113,28 @@ extern "C" void trigger_abet(int device, int port)
    writePort(argString,0);
 }
 
+//Trigger the behavior box; this time specifying a pulse duration (in ms). 
+//Arguments are a device number and a device channel number.
+extern "C" void trigger_abet_ex(int device, int port, int duration)
+{
+   //base string format
+   char argString[] = "Devx/porty";
+   //convert input integers to strings
+   char devNum[2];
+   char portNum[2];
+   _itoa(device, devNum, 10);
+   _itoa(port, portNum, 10);
+   //place the device/port numbers into the base string
+   argString[3] = devNum[0];
+   argString[9] = portNum[0];
+   //send a reward signal to the NIDAQ
+   //(ABET recognizes the trigger only when you set
+   //a "1" followed shortly by a "0")
+   writePort(argString,1);
+   Sleep(duration);
+   writePort(argString,0);
+}
+
 //Get the value of the NIDAQ DIO device
 extern "C" int read_abet(int device, int port)
 {
@@ -131,8 +153,5 @@ extern "C" int read_abet(int device, int port)
    result = readPort(argString);
    return result;
 }
-
-
-
 
 

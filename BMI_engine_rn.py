@@ -9,6 +9,11 @@ import numpy as np
 import BMI_baseline as baseline
 import os
 
+##trigger the nidaq channels to make sure they are set at 0
+br.trig_nidaq(1,global_vars['start_trigger'])
+br.trig_nidaq(1,global_vars['t1_port'])
+br.trig_nidaq(1,global_vars['t2_port'])
+
 #global variables dictionary
 global_vars = {
 	"e1_list":[],
@@ -23,12 +28,14 @@ global_vars = {
 	"abet_dev":1,
 	"t1_port":1,
 	"t2_port":2,
+	"start_trigger":2
 	"t1_event":11,
 	"t2_event":12,
 	"miss_event":10,
 	"min_freq":400,
 	"max_freq":15000,
-	"save_file":r"D:\data\test.txt"
+	"save_file":r"D:\data\test.txt",
+	"reward_time":1000
 }
 ##global state variable to be shared between processes
 engage = Value('i', 0)
@@ -67,6 +74,7 @@ def set_globals(e1_list, e2_list, samp_int, smooth_int, timeout, timeout_pause, 
 	global_vars['max_freq'] = max_freq
 	global_vars['min_freq'] = min_freq
 	global_vars['save_file'] = os.path.normpath(save_file)
+
 
 
 """
@@ -144,7 +152,7 @@ def decoder(var_dict, engage_var, timer_var, num_t1, num_t2, num_miss):
 			##create a timestamp
 			br.send_event(var_dict['t1_event'])
 			##trigger ABET
-			br.trig_nidaq(var_dict['abet_dev'], var_dict['t1_port'])
+			br.trig_nidaq_ex(var_dict['abet_dev'], var_dict['t1_port'],var_dict['reward_time'])
 			##save to the log file
 			fileout.write("T1\n")
 			##pause feedback
@@ -169,7 +177,7 @@ def decoder(var_dict, engage_var, timer_var, num_t1, num_t2, num_miss):
 			##create a timestamp
 			br.send_event(var_dict['t2_event'])
 			##trigger ABET
-			br.trig_nidaq(var_dict['abet_dev'], var_dict['t2_port'])
+			br.trig_nidaq_ex(var_dict['abet_dev'], var_dict['t2_port'], var_dict['reward_time'])
 			##save to the log file
 			fileout.write("T2\n")
 			##pause feedback

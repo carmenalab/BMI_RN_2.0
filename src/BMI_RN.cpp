@@ -280,6 +280,23 @@ static PyObject* trig_nidaq(PyObject* self, PyObject* args)
 	return Py_None;
 }
 
+//Send a pulse of a specific duration to the NI device
+static PyObject* trig_nidaq_ex(PyObject* self, PyObject* args)
+{
+	int devNum;
+	int portNum;
+	int duration;
+	//parse arguments from python
+	 if (!PyArg_ParseTuple(args, "iii", &devNum, &portNum, &duration))
+		return NULL;
+	//pass args to the function
+	trigger_abet_ex(devNum, portNum, duration);
+	PyGILState_STATE state = PyGILState_Ensure();
+	Py_INCREF(Py_None);
+	PyGILState_Release(state);
+	return Py_None;
+}
+
 //read the status of a NIDAQ DIO port
 static PyObject* read_nidaq(PyObject* self, PyObject* args)
 {
@@ -326,6 +343,8 @@ static PyMethodDef BMIRNmethods[] = {
 		"Sends a user event on a given channel"},
 	{"trig_nidaq", trig_nidaq, METH_VARARGS,
 	 	"Briefly pulses the DI/O on the nidaq"},
+	{"trig_nidaq_ex", trig_nidaq_ex, METH_VARARGS,
+		"Sends a pulse to the nidaq with a specified duration"},
 	{"read_nidaq", read_nidaq, METH_VARARGS,
 	 	"Reads a DIO sample from a nidaq port"},
 	{NULL, NULL, 0, NULL} //sentinal
