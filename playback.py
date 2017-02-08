@@ -89,7 +89,7 @@ def playback(var_dict,engage_var):
 	##connect to plexon
 	br.connect_client()
 	##start the feedback process
-	br.start_feedback(freq, var_dict['samp_int'])
+	br.start_feedback(freq, var_dict['max_freq'], var_dict['min_freq'], var_dict['samp_int'])
 	br.trig_nidaq_ex(var_dict['abet_dev'],var_dict['trial_trigger'][0],var_dict['trial_trigger'][1],100) ##trigger the trial for video display
 	line = log.readline()[:-1] ##get the text for this line, excluding the return char
 	while (line != "") and (engage_var.value != 0): ##case where you've reached the end of the log or the poison pill has been set

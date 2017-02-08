@@ -23,7 +23,22 @@ float FeedbackParams::get_current_freq(void)
 
 void FeedbackParams::set_new_freq(float f)
 {
-	new_freq = f;
+	if (f == 0)
+	{
+		new_freq = 0;
+	}
+	else if (f < min_freq)
+	{
+		new_freq = min_freq;
+	}
+	else if (f > max_freq)
+	{
+		new_freq = max_freq;
+	}
+	else
+	{
+		new_freq = f;
+	}
 }
 
 float FeedbackParams::get_new_freq(void)
@@ -51,6 +66,24 @@ void FeedbackParams::set_midpoint(float m)
 float FeedbackParams::get_midpoint(void)
 {
 	return midpoint;
+}
+
+//functions to get/set max and min freq values
+void FeedbackParams::set_max_freq(float m)
+{
+	max_freq = m;
+}
+float FeedbackParams::get_max_freq(void)
+{
+	return max_freq;
+}
+void FeedbackParams::set_min_freq(float m)
+{
+	min_freq = m;
+}
+float FeedbackParams::get_min_freq(void)
+{
+	return min_freq;
 }
 
 //functions to get/set start and stop trigger
@@ -161,7 +194,7 @@ DWORD WINAPI audio_slide(LPVOID lpParam)
 	while(params -> get_trigger() == true)
 	{	
 		//check to see if the new frequency and old freq are different
-		if (params -> get_current_freq() != params -> get_new_freq())
+		if (params -> get_current_freq() != params -> get_new_freq()) 
 		{
 			//slide the audio value up to match
 			increment = (params -> get_new_freq() - params -> get_current_freq())/numPoints;

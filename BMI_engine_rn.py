@@ -142,7 +142,7 @@ def decoder(var_dict, engage_var, timer_var, num_t1, num_t2, num_miss):
 	br.set_cursor_params(tuple(var_dict['e1_list']), tuple(var_dict['e2_list']), len(var_dict['e1_list']),
 		len(var_dict['e2_list']), var_dict['samp_int'], var_dict['smooth_int'])
 	br.start_cursor()
-	br.start_feedback(1000, var_dict['samp_int'])
+	br.start_feedback(1000, var_dict['max_freq'], var_dict['min_freq'], var_dict['samp_int'])
 	##get the function variable to map cursor state to frequency (based on baseline calculations)
 	map_func = baseline.map_to_freq(var_dict['t2'], var_dict['mid'], var_dict['t1'], 
 		var_dict['min_freq'], var_dict['max_freq'])

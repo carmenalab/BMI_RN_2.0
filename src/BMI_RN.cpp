@@ -195,9 +195,11 @@ static PyObject* get_e_vals(PyObject* self, PyObject* args)
 static PyObject* start_feedback(PyObject* self, PyObject* args)
 {
 	float midpoint;
+	float max_freq;
+	float min_freq;
 	int interval;
 	//parse arguments from python
-	 if (!PyArg_ParseTuple(args, "fi", &midpoint, &interval))
+	 if (!PyArg_ParseTuple(args, "fffi", &midpoint, &max_freq, &min_freq, &interval))
 		return NULL;
 	//initialize parameter values
 	feedback_params.set_midpoint(midpoint);
@@ -205,6 +207,8 @@ static PyObject* start_feedback(PyObject* self, PyObject* args)
 	feedback_params.set_new_freq(midpoint);
 	feedback_params.set_interval(interval);
 	feedback_params.set_trigger(true);
+	feedback_params.set_max_freq(max_freq);
+	feedback_params.set_min_freq(min_freq);
 	//start the feedback thread
 	init_feedback(&feedback_params);
 	PyGILState_STATE state = PyGILState_Ensure();

@@ -29,6 +29,11 @@ public:
 	//functions to get/set midpoint value
 	void set_midpoint(float m);
 	float get_midpoint(void);
+	//functions to get/set max and min vals
+	void set_max_freq(float m);
+	float get_max_freq(void);
+	void set_min_freq(float m);
+	float get_min_freq(void);
 	//functions to get/set start and stop trigger
 	void set_trigger(bool t);
 	bool get_trigger(void);
@@ -40,6 +45,8 @@ private:
 	int interval;
 	float midpoint;
 	bool trigger;
+	float max_freq;
+	float min_freq;
 };
 
 //This tick() function handles the computation of 
