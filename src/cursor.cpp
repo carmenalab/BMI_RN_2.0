@@ -15,23 +15,45 @@ CursorParams::CursorParams(void)
         NULL);             // unnamed mutex)
 }
 
-float CursorParams::get_cursor_val(void)
+float CursorParams::get_e1_val(void)
 {
 	float f;
 	WaitForSingleObject((cursorMutex), INFINITE);
 	__try{
-		f = cursor_val;
+		f = e1_val;
 	}
 	__finally{
 		ReleaseMutex((cursorMutex));
 	}	
 	return f;
 }
-void CursorParams::set_cursor_val(float v)
+float CursorParams::get_e2_val(void)
+{
+	float f;
+	WaitForSingleObject((cursorMutex), INFINITE);
+	__try{
+		f = e2_val;
+	}
+	__finally{
+		ReleaseMutex((cursorMutex));
+	}	
+	return f;
+}
+void CursorParams::set_e1_val(float v)
 {
 	WaitForSingleObject((cursorMutex), INFINITE);
 	__try{
-		cursor_val = v;
+		e1_val = v;
+	}
+	__finally{
+		ReleaseMutex((cursorMutex));
+	}	
+}
+void CursorParams::set_e2_val(float v)
+{
+	WaitForSingleObject((cursorMutex), INFINITE);
+	__try{
+		e2_val = v;
 	}
 	__finally{
 		ReleaseMutex((cursorMutex));
@@ -278,25 +300,33 @@ DWORD WINAPI cursor_thread(LPVOID lpParam)
 	//cast input parameters
 	CursorParams* params = (CursorParams*)lpParam;
 	int *buffer;
-	int val;
-	float smoothed_val;
+	int val_e1;
+	int val_e2;
+	float smoothed_e1;
+	float smoothed_e2;
 	//create a buffer
-	buffer = new int[params->get_smooth_int()];
+	buffer_e1 = new int[params->get_smooth_int()];
+	buffer_e2 = new int[params->get_smooth_int()];
 	//fill with zeros
 	for(int i = 0; i < params->get_smooth_int(); i++)
 	{
-		buffer[i] = 0;
+		buffer_e1[i] = 0;
+		buffer_e2[i] = 0;
 	}
 	while (params -> is_engaged() == true)
 	{
 		//val = rand() %100;
-		val = get_cursor(params->get_e1_names(), params->get_e2_names(), 
-			params->get_num_e1(),params->get_num_e2(), params->get_samp_int());
-		advance_buffer(buffer, params->get_smooth_int(), val);
-		smoothed_val = arr_mean(buffer, params->get_smooth_int());
-		params->set_cursor_val(float(smoothed_val));
+		get_raw_ensembles(params->get_e1_names(), params->get_e2_names(), 
+			params->get_num_e1(),params->get_num_e2(), &val_e1, &val_e2, params->get_samp_int());
+		advance_buffer(buffer_e1, params->get_smooth_int(), val_e1);
+		advance_buffer(buffer_e2, params->get_smooth_int(), val_e2);
+		smoothed_e1 = arr_mean(buffer_e1, params->get_smooth_int());
+		smoothed_e2 = arr_mean(buffer_e2, params->get_smooth_int());
+		params->set_e1_val(float(smoothed_e1));
+		params->set_e2_val(float(smoothed_e2));
 	}
-	delete[] buffer;
+	delete[] buffer_e1;
+	delete[] buffer_e2;
 	return NULL;
 }
 

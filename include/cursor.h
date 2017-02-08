@@ -28,8 +28,10 @@ public:
 	//default constructor
 	CursorParams(void);
 	//functions to get and set parameters
-	float get_cursor_val(void);
-	void set_cursor_val(float v);
+	float get_e1_val(void);
+	float get_e2_val(void),
+	void set_e1_val(float v);
+	void set_e2_val(float v);
 	int get_samp_int(void);
 	void set_samp_int(int i);
 	int get_smooth_int(void);
@@ -49,7 +51,8 @@ public:
 	HANDLE cursorMutex;
 private:
 	//cursor variables
-	float cursor_val;
+	float e1_val;
+	float e2_val;
 	int samp_int;
 	int smooth_int;
 	std::string* e1_names;

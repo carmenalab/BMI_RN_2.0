@@ -151,7 +151,7 @@ def decoder(var_dict, engage_var, timer_var, num_t1, num_t2, num_miss):
 	while engage_var.value != 0:
 		##acquire the cursor value and set the feedback accordingly
 		time.sleep(var_dict['samp_int']/1000.0)
-		cursor = br.get_cursor_val()
+		cursor = calc_cursor()
 		fb = map_func(cursor)
 		br.set_feedback(fb)
 		##write this data to file
@@ -173,10 +173,10 @@ def decoder(var_dict, engage_var, timer_var, num_t1, num_t2, num_miss):
 			##pause for reward
 			time.sleep(3)
 			##resume feedback
-			br.resume_feedback(map_func(br.get_cursor_val()))
+			br.resume_feedback(map_func(calc_cursor()))
 			##check for back to baseline
 			while cursor >= var_dict['mid']:
-				cursor = br.get_cursor_val()
+				cursor = calc_cursor()
 				br.set_feedback(map_func(cursor))
 				time.sleep(var_dict['samp_int']/1000.0)
 			print "Back to baseline"
@@ -200,10 +200,10 @@ def decoder(var_dict, engage_var, timer_var, num_t1, num_t2, num_miss):
 			##pause for reward
 			time.sleep(3)
 			##resume feedback
-			br.resume_feedback(map_func(br.get_cursor_val()))
+			br.resume_feedback(map_func(calc_cursor()))
 			##check for back to baseline
 			while cursor <= var_dict['mid']:
-				cursor = br.get_cursor_val()
+				cursor = calc_cursor()
 				br.set_feedback(map_func(cursor))
 				time.sleep(var_dict['samp_int']/1000.0)
 			print "Back to baseline"
@@ -226,7 +226,7 @@ def decoder(var_dict, engage_var, timer_var, num_t1, num_t2, num_miss):
 			##pause for given timeout
 			time.sleep(var_dict['timeout_pause'])
 			##resume feedback
-			br.resume_feedback(map_func(br.get_cursor_val()))
+			br.resume_feedback(map_func(calc_cursor()))
 			##reset clock
 			timer_var.value = var_dict['timeout']
 			br.trig_nidaq_ex(var_dict['abet_dev'],var_dict['trial_trigger'][0],var_dict['trial_trigger'][1],100)
@@ -235,6 +235,12 @@ def decoder(var_dict, engage_var, timer_var, num_t1, num_t2, num_miss):
 	br.disconnect_client()
 	fileout.close()
 	print "BMI stopped!"
+
+##a function to compute the cursor value
+def calc_cursor():
+	E1, E2 = br.get_e1_e2()
+	return E1-E2
+
 
 """
 timeout_clock: a function to implement a timeout clock, lol

@@ -55,7 +55,7 @@ def collect_baseline(e1_list, e2_list, samp_int, smooth_int, duration, f_name):
 	reward_p = multiprocessing.Process(target = random_reward, args = (duration,))
 	reward_p.start()
 	for i in range(num_samples):
-		baseline_data[i] = br.get_cursor_val()
+		baseline_data[i] = calc_cursor()
 		time.sleep(samp_int/1000.0)
 	print "baseline collection complete"
 	f = h5py.File(f_name, 'w-')
@@ -231,3 +231,9 @@ def map_to_freq(t2, mid, t1, min_freq, max_freq):
 	z = np.polyfit(fr_pts, freq_pts, 2)
 	p = np.poly1d(z)
 	return p
+
+
+##a function to compute the cursor value
+def calc_cursor():
+	E1, E2 = br.get_e1_e2()
+	return E1-E2

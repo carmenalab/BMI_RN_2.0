@@ -152,16 +152,16 @@ static PyObject* stop_cursor(PyObject* self, PyObject* args)
 	PyGILState_Release(state);
 	return Py_None;
 }
-//function to return the cursor value
-static PyObject* get_cursor_val(PyObject* self, PyObject* args)
+//function to return the current E1 and E2 values
+static PyObject* get_e1_e2(PyObject* self, PyObject* args)
 {
 	if (cursor_params.is_engaged() == true)
 	{
-		return Py_BuildValue("f", cursor_params.get_cursor_val());
+		return Py_BuildValue("ff", cursor_params.get_e1_val(), cursor_params.get_e2_val());
 	}
 	else
 	{
-		return Py_BuildValue("f", 0.0);
+		return Py_BuildValue("ff", 0.0, 0.0);
 	}
 }
 
@@ -337,8 +337,8 @@ static PyMethodDef BMIRNmethods[] = {
 		"Initialize the thread to begin calculating cursor values"},
 	{"stop_cursor", stop_cursor, METH_VARARGS,
 		"Kill an active cursor thread"},
-	{"get_cursor_val", get_cursor_val, METH_VARARGS,
-		"Returns the current cursor value"},
+	{"get_e1_e2", get_e1_e2, METH_VARARGS,
+		"Returns the current E1 and E2 values"},
 	{"get_e_vals", get_e_vals, METH_VARARGS,
 		"Returns the e1 and e2 ensemble counts for a given interval"},
 	{"send_event", send_event, METH_VARARGS,
