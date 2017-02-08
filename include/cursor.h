@@ -29,7 +29,7 @@ public:
 	CursorParams(void);
 	//functions to get and set parameters
 	float get_e1_val(void);
-	float get_e2_val(void),
+	float get_e2_val(void);
 	void set_e1_val(float v);
 	void set_e2_val(float v);
 	int get_samp_int(void);

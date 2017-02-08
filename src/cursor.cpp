@@ -299,7 +299,8 @@ DWORD WINAPI cursor_thread(LPVOID lpParam)
   	//srand (time(NULL));
 	//cast input parameters
 	CursorParams* params = (CursorParams*)lpParam;
-	int *buffer;
+	int *buffer_e1;
+	int *buffer_e2;
 	int val_e1;
 	int val_e2;
 	float smoothed_e1;
@@ -316,6 +317,8 @@ DWORD WINAPI cursor_thread(LPVOID lpParam)
 	while (params -> is_engaged() == true)
 	{
 		//val = rand() %100;
+		val_e1 = 0;
+		val_e2 = 0;
 		get_raw_ensembles(params->get_e1_names(), params->get_e2_names(), 
 			params->get_num_e1(),params->get_num_e2(), &val_e1, &val_e2, params->get_samp_int());
 		advance_buffer(buffer_e1, params->get_smooth_int(), val_e1);
