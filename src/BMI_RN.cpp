@@ -269,11 +269,12 @@ static PyObject* trig_nidaq(PyObject* self, PyObject* args)
 {
 	int devNum;
 	int portNum;
+	int lineNum;
 	//parse arguments from python
-	 if (!PyArg_ParseTuple(args, "ii", &devNum, &portNum))
+	 if (!PyArg_ParseTuple(args, "iii", &devNum, &portNum, &lineNum))
 		return NULL;
 	//pass args to the function
-	trigger_abet(devNum, portNum);
+	trigger_abet(devNum, portNum, lineNum);
 	PyGILState_STATE state = PyGILState_Ensure();
 	Py_INCREF(Py_None);
 	PyGILState_Release(state);
@@ -285,12 +286,13 @@ static PyObject* trig_nidaq_ex(PyObject* self, PyObject* args)
 {
 	int devNum;
 	int portNum;
+	int lineNum;
 	int duration;
 	//parse arguments from python
-	 if (!PyArg_ParseTuple(args, "iii", &devNum, &portNum, &duration))
+	 if (!PyArg_ParseTuple(args, "iiii", &devNum, &portNum, &lineNum, &duration))
 		return NULL;
 	//pass args to the function
-	trigger_abet_ex(devNum, portNum, duration);
+	trigger_abet_ex(devNum, portNum, lineNum, duration);
 	PyGILState_STATE state = PyGILState_Ensure();
 	Py_INCREF(Py_None);
 	PyGILState_Release(state);

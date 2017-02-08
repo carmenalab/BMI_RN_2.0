@@ -93,44 +93,54 @@ Error:
 
 
 //Trigger the behavior box. Arguments are a device number and a device channel number.
-extern "C" void trigger_abet(int device, int port)
+extern "C" void trigger_abet(int device, int port, int line)
 {
    //base string format
-   char argString[] = "Devx/porty";
+   char argString[] = "Devx/porty/linez";
+   //value to write; will depend on line to write to
+   int val = two_pow(line); 
    //convert input integers to strings
    char devNum[2];
    char portNum[2];
+   char lineNum[2];
    _itoa(device, devNum, 10);
    _itoa(port, portNum, 10);
+   _itoa(line, lineNum, 10);
    //place the device/port numbers into the base string
    argString[3] = devNum[0];
    argString[9] = portNum[0];
+   argString[15] = lineNum[0];
    //send a reward signal to the NIDAQ
    //(ABET recognizes the trigger only when you set
    //a "1" followed shortly by a "0")
-   writePort(argString,1);
+   writePort(argString,val);
    Sleep(10);
    writePort(argString,0);
 }
 
 //Trigger the behavior box; this time specifying a pulse duration (in ms). 
 //Arguments are a device number and a device channel number.
-extern "C" void trigger_abet_ex(int device, int port, int duration)
+extern "C" void trigger_abet_ex(int device, int port, int line, int duration)
 {
    //base string format
-   char argString[] = "Devx/porty";
+   char argString[] = "Devx/porty/linez";
+   //value to write; will depend on line to write to
+   int val = two_pow(line); 
    //convert input integers to strings
    char devNum[2];
    char portNum[2];
+   char lineNum[2];
    _itoa(device, devNum, 10);
    _itoa(port, portNum, 10);
+   _itoa(line, lineNum, 10);
    //place the device/port numbers into the base string
    argString[3] = devNum[0];
    argString[9] = portNum[0];
+   argString[15] = lineNum[0];
    //send a reward signal to the NIDAQ
    //(ABET recognizes the trigger only when you set
    //a "1" followed shortly by a "0")
-   writePort(argString,1);
+   writePort(argString,val);
    Sleep(duration);
    writePort(argString,0);
 }
@@ -155,3 +165,18 @@ extern "C" int read_abet(int device, int port)
 }
 
 
+///A stupid little function to do exponetiation because I'm
+///too dumb to figure out another way
+int two_pow(int line)
+{
+   int result = 1;
+   if (line > 0)
+   {
+   result = 2;
+      for (int i=0; i<line-1; i++)
+      {
+         result = result*2;
+      } 
+   }
+   return result;
+}

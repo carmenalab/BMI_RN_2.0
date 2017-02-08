@@ -254,7 +254,10 @@ plotButton = Tk.Button(BMIVarsFrame, text = "Start Plot")
 plotButton.pack(side = "top")
 
 startPbButton = Tk.Button(BMIVarsFrame, text = "Start playback")
-stopPbButton = Tk.Button(BMIVarsFrams, text = "Stop playback")
+startPbButton.pack(side = "top")
+
+stopPbButton = Tk.Button(BMIVarsFrame, text = "Stop playback")
+stopPbButton.pack(side="top")
 
 scoreLabelVar = Tk.StringVar()
 scoreLabel = Tk.Label(BMIVarsFrame, textvariable = scoreLabelVar)

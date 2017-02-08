@@ -21,9 +21,11 @@ global_vars = {
 	"t2":0,
 	"mid":0,
 	"abet_dev":1,
-	"t1_port":1,
-	"t2_port":2,
-	"start_trigger":0
+	"t1_port":(2,0),
+	"t2_port":(2,1),
+	"start_trigger":(0,0),
+	"video_trigger":(0,1),
+	"trial_trigger":(0,2),
 	"t1_event":11,
 	"t2_event":12,
 	"miss_event":10,
@@ -34,9 +36,11 @@ global_vars = {
 }
 
 ##trigger the nidaq channels to make sure they are set at 0
-br.trig_nidaq(1,global_vars['start_trigger'])
-br.trig_nidaq(1,global_vars['t1_port'])
-br.trig_nidaq(1,global_vars['t2_port'])
+br.trig_nidaq(global_vars['abet_dev'],global_vars['start_trigger'][0],global_vars['start_trigger'][1])
+br.trig_nidaq(global_vars['abet_dev'],global_vars['video_trigger'][0],global_vars['video_trigger'][1])
+br.trig_nidaq(global_vars['abet_dev'],global_vars['trial_trigger'][0],global_vars['trial_trigger'][1])
+br.trig_nidaq(global_vars['abet_dev'],global_vars['t1_port'][0],global_vars['t1_port'][1])
+br.trig_nidaq(global_vars['abet_dev'],global_vars['t2_port'][0],global_vars['t2_port'][1])
 
 ##global state variable to be shared between processes
 engage = Value('i', 0)
@@ -115,7 +119,8 @@ def start_BMI(e1_list, e2_list, samp_int, smooth_int, timeout, timeout_pause,
 	decoder_p.start()
 	timer_p.start()
 	##trigger the recording
-	br.trig_nidaq_ex(1,global_vars['start_trigger'],100)
+	br.trig_nidaq_ex(global_vars['abet_dev'],global_vars['start_trigger'][0],global_vars['start_trigger'][1],100)
+	br.trig_nidaq_ex(global_vars['abet_dev'],global_vars['video_trigger'][0],global_vars['video_trigger'][1],100)
 
 ##function to stop BMI
 def stop_BMI():
@@ -142,6 +147,7 @@ def decoder(var_dict, engage_var, timer_var, num_t1, num_t2, num_miss):
 	map_func = baseline.map_to_freq(var_dict['t2'], var_dict['mid'], var_dict['t1'], 
 		var_dict['min_freq'], var_dict['max_freq'])
 	##chack the global engage variable
+	br.trig_nidaq_ex(var_dict['abet_dev'],var_dict['trial_trigger'][0],var_dict['trial_trigger'][1],100)
 	while engage_var.value != 0:
 		##acquire the cursor value and set the feedback accordingly
 		time.sleep(var_dict['samp_int']/1000.0)
@@ -155,7 +161,8 @@ def decoder(var_dict, engage_var, timer_var, num_t1, num_t2, num_miss):
 			##create a timestamp
 			br.send_event(var_dict['t1_event'])
 			##trigger ABET
-			br.trig_nidaq_ex(var_dict['abet_dev'], var_dict['t1_port'],var_dict['reward_time'])
+			br.trig_nidaq_ex(var_dict['abet_dev'], var_dict['t1_port'][0],
+				var_dict['t1_port'][1],var_dict['reward_time'])
 			##save to the log file
 			fileout.write("T1\n")
 			##pause feedback
@@ -175,12 +182,14 @@ def decoder(var_dict, engage_var, timer_var, num_t1, num_t2, num_miss):
 			print "Back to baseline"
 			##reset clock
 			timer_var.value = var_dict['timeout']
+			br.trig_nidaq_ex(var_dict['abet_dev'],var_dict['trial_trigger'][0],var_dict['trial_trigger'][1],100)
 		##check for T2
 		elif cursor <= var_dict['t2']:
 			##create a timestamp
 			br.send_event(var_dict['t2_event'])
 			##trigger ABET
-			br.trig_nidaq_ex(var_dict['abet_dev'], var_dict['t2_port'], var_dict['reward_time'])
+			br.trig_nidaq_ex(var_dict['abet_dev'], var_dict['t2_port'][0], 
+				var_dict['t2_port'][1], var_dict['reward_time'])
 			##save to the log file
 			fileout.write("T2\n")
 			##pause feedback
@@ -200,6 +209,7 @@ def decoder(var_dict, engage_var, timer_var, num_t1, num_t2, num_miss):
 			print "Back to baseline"
 			##reset clock
 			timer_var.value = var_dict['timeout']
+			br.trig_nidaq_ex(var_dict['abet_dev'],var_dict['trial_trigger'][0],var_dict['trial_trigger'][1],100)
 		##check for timeout
 		elif timer_var.value <= 0:
 			##create a timestamp
@@ -211,7 +221,7 @@ def decoder(var_dict, engage_var, timer_var, num_t1, num_t2, num_miss):
 			##play white noise
 			br.play_noise()
 			##save to the log file
-			fileout.write("Timeout")
+			fileout.write("Timeout\n")
 			print "Timeout!"
 			##pause for given timeout
 			time.sleep(var_dict['timeout_pause'])
@@ -219,6 +229,7 @@ def decoder(var_dict, engage_var, timer_var, num_t1, num_t2, num_miss):
 			br.resume_feedback(map_func(br.get_cursor_val()))
 			##reset clock
 			timer_var.value = var_dict['timeout']
+			br.trig_nidaq_ex(var_dict['abet_dev'],var_dict['trial_trigger'][0],var_dict['trial_trigger'][1],100)
 	br.stop_cursor()
 	br.stop_feedback()
 	br.disconnect_client()

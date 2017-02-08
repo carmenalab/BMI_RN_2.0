@@ -21,11 +21,11 @@ def random_reward(session_len):
 	##while you haven't exceeded the session length:
 	while counter < session_len:
 		#get a random time to pause for
-		pause = np.random.randint(50, 120)
+		pause = np.random.randint(50, 100)
 		##pause
 		time.sleep(pause)
 		##send a signal to behavior box
-		br.trig_nidaq(1, 1)
+		br.trig_nidaq_ex(1,2,0,1000)
 		##increment the counter based on the pause duration
 		counter += pause
 	print "Reward cycle complete!"
