@@ -237,10 +237,14 @@ def map_to_freq(t2, mid, t1, min_freq, max_freq):
 ## a function to return the mean ensemble values for E1 and E2 calculated from 
 ##the baseline
 def ensemble_means(f_in):
-	f = h5py.File(f_in,'r')
-	e1_mean = np.asarray(f['baseline_data_e1']).mean()
-	e2_mean = np.asarray(f['baseline_data_e2']).mean()
-	f.close()
+	try:
+		f = h5py.File(f_in,'r')
+		e1_mean = np.asarray(f['baseline_data_e1']).mean()
+		e2_mean = np.asarray(f['baseline_data_e2']).mean()
+		f.close()
+	except IOError: ##case where no baseline has been saved yet
+		e1_mean = 0
+		e2_mean = 0
 	return e1_mean, e2_mean
 
 

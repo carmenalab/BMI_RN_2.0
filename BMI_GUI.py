@@ -13,6 +13,7 @@ import BMI_baseline
 import BMI_engine_rn
 import BMI_RN as br
 import playback
+import os
 # implement the default mpl key bindings
 ##GLOBAL VARIABLES
 
@@ -159,7 +160,7 @@ animalData = entryBox(metaDataFrame, "Animal Name", "type animal name here")
 fileNameData = entryBox(metaDataFrame, "File Name", "type file name here")
 
 #string for baseline filename
-baselineFile = entryBox(metaDataFrame, "Baseline path", "D:\data\V11\D00_baseline.hdf5")
+baselineFile = entryBox(metaDataFrame, "Baseline path", "D:/data/test/D00_baseline.hdf5")
 
 #string for control units
 controlCellsData = entryBox(metaDataFrame, "Control Cells", "type control region here")
@@ -229,7 +230,7 @@ timeOutEntry = entryBox(BMIVarsFrame2, "Timeout (s)", '10')
 
 baselineDurationEntry = entryBox(BMIVarsFrame2, "Baseline Duration (min)", '15')
 
-saveFileEntry = entryBox(BMIVarsFrame2, "Save file", "D:/data/log.txt")
+saveFileEntry = entryBox(BMIVarsFrame2, "Save file", "D:/data/test/log.txt")
 
 #buttons
 setVarsButton = Tk.Button(BMIVarsFrame2, text = "Set BMI Variables")
@@ -261,12 +262,12 @@ stopPbButton.pack(side="top")
 
 pegE1Var = Tk.IntVar()
 pegE1Check = Tk.Checkbutton(BMIVarsFrame, text = "Fix E1", 
-	varibale = pegE1Var)
+	variable = pegE1Var)
 pegE1Check.pack(side='top')
 
 pegE2Var = Tk.IntVar()
 pegE2Check = Tk.Checkbutton(BMIVarsFrame, text = "Fix E2", 
-	varibale = pegE2Var)
+	variable = pegE2Var)
 pegE2Check.pack(side='top')
 
 scoreLabelVar = Tk.StringVar()
@@ -354,7 +355,7 @@ def set_params():
 		#set params
 		BMI_engine_rn.set_globals(e1_list, e2_list, samp_int, smooth_int, timeout, timeout_pause, t1, 
 			t2, mid, min_freq, max_freq, save_file, e1_mean, e2_mean)
-		playback.set_globals(samp_int,smooth_int,timeout,timeout_pause,save_file)
+		playback.set_globals(samp_int,smooth_int,timeout,timeout_pause,save_file,max_freq,min_freq)
 
 def collect_baseline():
 	BMI_baseline.collect_baseline(list(e1.unitList), list(e2.unitList), 
@@ -365,7 +366,7 @@ def collect_baseline():
 ##given baseline data. Function basically simulates BMI for the baseline period.
 def set_targets():
 	##collect data from GUI
-	f_in = baselineFile.entryString.get()
+	f_in = os.path.normpath(baselineFile.entryString.get())
 	min_freq = float(minFreqEntry.entryString.get())
 	max_freq = float(maxFreqEntry.entryString.get())
 	e1_list = list(e1.unitList)
@@ -423,7 +424,9 @@ def startPlayback():
 	timeout = int(timeLimitEntry.entryString.get())
 	timeout_pause = int(timeOutEntry.entryString.get())
 	save_file = saveFileEntry.entryString.get()
-	playback.start_playback(samp_int,smooth_int,timeout,timeout_pause,save_file)
+	max_freq = float(maxFreqEntry.entryString.get())
+	min_freq = float(minFreqEntry.entryString.get())
+	playback.start_playback(samp_int,smooth_int,timeout,timeout_pause,save_file,max_freq,min_freq)
 
 def stopPlayback():
 	playback.stop_playback()

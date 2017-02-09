@@ -23,6 +23,8 @@ global_vars = {
 	"t1_event":11,
 	"t2_event":12,
 	"miss_event":10,
+	"min_freq":400.0,
+	"max_freq":15000.0,
 	"log_file":r"D:\data\log.txt"
 }
 
@@ -37,13 +39,15 @@ br.trig_nidaq(global_vars['abet_dev'],global_vars['t2_port'][0],global_vars['t2_
 engage = Value('i', 0)
 
 ###A function to set the variables in the global variables dictionary
-def set_globals(samp_int,smooth_int,timeout,timeout_pause,log_file):
+def set_globals(samp_int,smooth_int,timeout,timeout_pause,log_file,max_freq,min_freq):
 	global global_vars
 	global_vars["samp_int"] = samp_int
 	global_vars["smooth_int"] = smooth_int
 	global_vars["timeout"] = timeout
 	global_vars["timeout_pause"] = timeout_pause
 	global_vars["log_file"] = os.path.normpath(log_file)
+	global_vars['max_freq'] = max_freq
+	global_vars['min_freq'] = min_freq
 
 ##a sub-function to parse a single line in a log, 
 ##and return the cursor val and frequency components seperately.
@@ -61,12 +65,12 @@ def read_line(string):
 	return float(cval), float(freq)
 
 ###A function to spawn a process to run the playback. Input args are taken from start_BMI
-def start_playback(samp_int,smooth_int,timeout,timeout_pause,log_file):
+def start_playback(samp_int,smooth_int,timeout,timeout_pause,log_file,max_freq,min_freq):
 	global engage
 	##activate the state variable
 	engage.value=1
 	##set the global variables
-	set_globals(samp_int,smooth_int,timeout,timeout_pause,log_file)
+	set_globals(samp_int,smooth_int,timeout,timeout_pause,log_file,max_freq,min_freq)
 	##initialize the process to run the playback function
 	playback_p = Process(target=playback,args=(global_vars,engage))
 	##start the process

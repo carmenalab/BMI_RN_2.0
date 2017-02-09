@@ -160,7 +160,7 @@ def decoder(var_dict, engage_var, timer_var, peg_e1_var, peg_e2_var, num_t1, num
 	while engage_var.value != 0:
 		##acquire the cursor value and set the feedback accordingly
 		time.sleep(var_dict['samp_int']/1000.0)
-		cursor = calc_cursor()
+		cursor = calc_cursor(peg_e1_var, peg_e2_var, var_dict['e1_mean'], var_dict['e2_mean'])
 		fb = map_func(cursor)
 		br.set_feedback(fb)
 		##write this data to file
@@ -182,10 +182,10 @@ def decoder(var_dict, engage_var, timer_var, peg_e1_var, peg_e2_var, num_t1, num
 			##pause for reward
 			time.sleep(3)
 			##resume feedback
-			br.resume_feedback(map_func(calc_cursor()))
+			br.resume_feedback(map_func(calc_cursor(peg_e1_var, peg_e2_var, var_dict['e1_mean'], var_dict['e2_mean'])))
 			##check for back to baseline
 			while cursor >= var_dict['mid']:
-				cursor = calc_cursor()
+				cursor = calc_cursor(peg_e1_var, peg_e2_var, var_dict['e1_mean'], var_dict['e2_mean'])
 				br.set_feedback(map_func(cursor))
 				time.sleep(var_dict['samp_int']/1000.0)
 			print "Back to baseline"
@@ -209,10 +209,10 @@ def decoder(var_dict, engage_var, timer_var, peg_e1_var, peg_e2_var, num_t1, num
 			##pause for reward
 			time.sleep(3)
 			##resume feedback
-			br.resume_feedback(map_func(calc_cursor()))
+			br.resume_feedback(map_func(calc_cursor(peg_e1_var, peg_e2_var, var_dict['e1_mean'], var_dict['e2_mean'])))
 			##check for back to baseline
 			while cursor <= var_dict['mid']:
-				cursor = calc_cursor()
+				cursor = calc_cursor(peg_e1_var, peg_e2_var, var_dict['e1_mean'], var_dict['e2_mean'])
 				br.set_feedback(map_func(cursor))
 				time.sleep(var_dict['samp_int']/1000.0)
 			print "Back to baseline"
@@ -235,7 +235,7 @@ def decoder(var_dict, engage_var, timer_var, peg_e1_var, peg_e2_var, num_t1, num
 			##pause for given timeout
 			time.sleep(var_dict['timeout_pause'])
 			##resume feedback
-			br.resume_feedback(map_func(calc_cursor()))
+			br.resume_feedback(map_func(calc_cursor(peg_e1_var, peg_e2_var, var_dict['e1_mean'], var_dict['e2_mean'])))
 			##reset clock
 			timer_var.value = var_dict['timeout']
 			br.trig_nidaq_ex(var_dict['abet_dev'],var_dict['trial_trigger'][0],var_dict['trial_trigger'][1],100)
@@ -246,15 +246,12 @@ def decoder(var_dict, engage_var, timer_var, peg_e1_var, peg_e2_var, num_t1, num
 	print "BMI stopped!"
 
 ##a function to compute the cursor value
-def calc_cursor():
-	global peg_e1
-	global peg_e2
-	global global_vars
+def calc_cursor(peg_e1,peg_e2,e1_mean,e2_mean):
 	E1, E2 = br.get_e1_e2()
-	if peg_e1:
-		E1 = global_vars['e1_mean']
-	if peg_e2:
-		E2 = global_vars['e2_mean']
+	if peg_e1.value:
+		E1 = e1_mean
+	if peg_e2.value:
+		E2 = e2_mean
 	return E1-E2
 
 
