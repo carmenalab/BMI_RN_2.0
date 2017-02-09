@@ -295,5 +295,5 @@ def fix_e2_on():
 
 def fix_e2_off():
 	global peg_e2
-	peg_e2.value =0
+	peg_e2.value = 0
 

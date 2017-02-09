@@ -261,7 +261,13 @@ stopPbButton.pack(side="top")
 
 pegE1Var = Tk.IntVar()
 pegE1Check = Tk.Checkbutton(BMIVarsFrame, text = "Fix E1", 
-	varibale = pegE1Var, command = pegE1)
+	varibale = pegE1Var)
+pegE1Check.pack(side='top')
+
+pegE2Var = Tk.IntVar()
+pegE2Check = Tk.Checkbutton(BMIVarsFrame, text = "Fix E2", 
+	varibale = pegE2Var)
+pegE2Check.pack(side='top')
 
 scoreLabelVar = Tk.StringVar()
 scoreLabel = Tk.Label(BMIVarsFrame, textvariable = scoreLabelVar)
@@ -422,6 +428,18 @@ def startPlayback():
 def stopPlayback():
 	playback.stop_playback()
 
+def peg_e1():
+	if pegE1Var.get():
+		BMI_engine_rn.fix_e1_on()
+	elif not pegE1Var.get():
+		BMI_engine_rn.fix_e1_off()
+
+def peg_e2():
+	if pegE2Var.get():
+		BMI_engine_rn.fix_e2_on()
+	elif not pegE2Var.get():
+		BMI_engine_rn.fix_e2_off()
+
 
 setVarsButton.configure(command = set_params)
 startButton.configure(command = start_BMI)
@@ -432,6 +450,8 @@ updateScoreButton.configure(command = update_score)
 plotButton.configure(command = start_plot)
 startPbButton.configure(command = startPlayback)
 stopPbButton.configure(command = stopPlayback)
+pegE1Check.configure(command = peg_e1)
+pegE2Check.configure(command = peg_e2)
 
 ########################################################################
 ########################################################################
