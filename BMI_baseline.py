@@ -45,7 +45,8 @@ def collect_baseline(e1_list, e2_list, samp_int, smooth_int, duration, f_name):
 	base_ms = duration*60.0*1000.0
 	num_samples = int(base_ms/samp_int)
 	##allocate an array to store data
-	baseline_data = np.zeros(num_samples)
+	baseline_data_e1 = np.zeros(num_samples)
+	baseline_data_e2 = np.zeros(num_samples)
 	##start collecting the data
 	br.connect_client()
 	br.set_cursor_params(tuple(e1_list), tuple(e2_list), len(e1_list), len(e2_list),
@@ -55,11 +56,12 @@ def collect_baseline(e1_list, e2_list, samp_int, smooth_int, duration, f_name):
 	reward_p = multiprocessing.Process(target = random_reward, args = (duration,))
 	reward_p.start()
 	for i in range(num_samples):
-		baseline_data[i] = calc_cursor()
+		baseline_data_e1[i], baseline_data_e2[i] = br.get_e1_e2()
 		time.sleep(samp_int/1000.0)
 	print "baseline collection complete"
 	f = h5py.File(f_name, 'w-')
-	f.create_dataset("baseline_data", data = baseline_data)
+	f.create_dataset("baseline_data_e1", data = baseline_data_e1)
+	f.create_dataset("baseline_data_e2", data = baseline_data_e2)
 	f.close()
 	br.stop_cursor()
 	br.disconnect_client()
@@ -70,7 +72,7 @@ def set_targets(f_in, prob_t1, prob_t2, min_freq, max_freq, samp_int, smooth_int
 	f, (ax1, ax2) = plt.subplots(1, 2)
 	##load the baseline data
 	f = h5py.File(f_in, 'r')
-	data = np.asarray(f['baseline_data'])
+	data = np.asarray(f['baseline_data_e1'])-np.asarray(f['baseline_data_e2'])
 	f.close()
 	##calculate the gaussian mixture model
 	x, pdf, pdf_individual = gmm.generate_gmm(data)
@@ -137,7 +139,7 @@ Args:
 def sim_bmi(f_in, samp_int, smooth_int, t1, t2, midpoint, timeout, timeout_pause, p_func):
 	##load the baseline data
 	f = h5py.File(f_in, 'r')
-	data = np.asarray(f['baseline_data'])
+	data = np.asarray(f['baseline_data_e1'])-np.asarray(f['baseline_data_e2'])
 	f.close()
 	##get the timeout duration in samples
 	timeout_samps = int((timeout*1000.0)/samp_int)
@@ -232,8 +234,13 @@ def map_to_freq(t2, mid, t1, min_freq, max_freq):
 	p = np.poly1d(z)
 	return p
 
+## a function to return the mean ensemble values for E1 and E2 calculated from 
+##the baseline
+def ensemble_means(f_in):
+	f = h5py.File(f_in,'r')
+	e1_mean = np.asarray(f['baseline_data_e1']).mean()
+	e2_mean = np.asarray(f['baseline_data_e2']).mean()
+	f.close()
+	return e1_mean, e2_mean
 
-##a function to compute the cursor value
-def calc_cursor():
-	E1, E2 = br.get_e1_e2()
-	return E1-E2
+

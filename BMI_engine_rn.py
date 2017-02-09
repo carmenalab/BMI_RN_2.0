@@ -32,7 +32,9 @@ global_vars = {
 	"min_freq":400,
 	"max_freq":15000,
 	"save_file":r"D:\data\test.txt",
-	"reward_time":1000
+	"reward_time":1000,
+	"e1_mean":0,
+	"e2_mean":0
 }
 
 ##trigger the nidaq channels to make sure they are set at 0
@@ -48,6 +50,8 @@ time_remaining = Value('i', 0)
 num_t1 = Value('i', 0)
 num_t2 = Value('i', 0)
 num_miss = Value('i', 0)
+peg_e1 = Value('i', 0)
+peg_e2 = Value('i', 0)
 
 """
 set_globals: a function to set global variables.
@@ -64,7 +68,7 @@ Args:
 -t1; t2: cursor values of target 1 and 2
 """
 def set_globals(e1_list, e2_list, samp_int, smooth_int, timeout, timeout_pause, t1, 
-	t2, mid, min_freq, max_freq, save_file):
+	t2, mid, min_freq, max_freq, save_file, e1_mean, e2_mean):
 	global global_vars
 	global_vars['e1_list'] = e1_list
 	global_vars['e2_list'] = e2_list
@@ -79,6 +83,9 @@ def set_globals(e1_list, e2_list, samp_int, smooth_int, timeout, timeout_pause, 
 	global_vars['max_freq'] = max_freq
 	global_vars['min_freq'] = min_freq
 	global_vars['save_file'] = os.path.normpath(save_file)
+	global_vars['e1_mean'] = e1_mean
+	global_vars['e2_mean'] = e2_mean
+
 
 
 
@@ -97,22 +104,24 @@ Args:
 -t1; t2: cursor values of target 1 and 2
 """
 def start_BMI(e1_list, e2_list, samp_int, smooth_int, timeout, timeout_pause, 
-	t1, t2, mid, min_freq, max_freq, save_file):
+	t1, t2, mid, min_freq, max_freq, save_file, e1_mean, e2_mean):
 	global engage
 	global time_remaining
 	global global_vars
 	global num_t1
 	global num_t2
 	global num_miss
+	global peg_e1
+	global peg_e2
 	##activate state variables
 	engage.value = 1
 	##set global variables
 	set_globals(e1_list, e2_list, samp_int, smooth_int, timeout, timeout_pause, t1, t2, 
-		mid, min_freq, max_freq, save_file)
+		mid, min_freq, max_freq, save_file, e1_mean, e2_mean)
 	##initialize the processes to link feedback and cursor state
 	##cursor function 
 	decoder_p = Process(target = decoder, args = (global_vars, engage, time_remaining, 
-		num_t1, num_t2, num_miss))
+		peg_e1, peg_e2, num_t1, num_t2, num_miss))
 	#timeout clock function
 	timer_p = Process(target = timeout_clock, args = (engage, time_remaining))
 	##start the processes
@@ -132,7 +141,7 @@ def stop_BMI():
 decoder- a function to acquire and the BMI cursor Value
 from the MAP server, and check for target hits.
 """
-def decoder(var_dict, engage_var, timer_var, num_t1, num_t2, num_miss):
+def decoder(var_dict, engage_var, timer_var, peg_e1_var, peg_e2_var, num_t1, num_t2, num_miss):
 	##open the file to save the data
 	fileout = open(var_dict['save_file'],'w')
 	##initialize the timer
@@ -238,7 +247,14 @@ def decoder(var_dict, engage_var, timer_var, num_t1, num_t2, num_miss):
 
 ##a function to compute the cursor value
 def calc_cursor():
+	global peg_e1
+	global peg_e2
+	global global_vars
 	E1, E2 = br.get_e1_e2()
+	if peg_e1:
+		E1 = global_vars['e1_mean']
+	if peg_e2:
+		E2 = global_vars['e2_mean']
 	return E1-E2
 
 
@@ -265,6 +281,19 @@ def get_t2():
 def get_miss():
 	return num_miss.value
 
+def fix_e1_on():
+	global peg_e1
+	peg_e1.value = 1
 
+def fix_e1_off():
+	global peg_e1
+	peg_e1.value = 0
 
+def fix_e2_on():
+	global peg_e2
+	peg_e2.value = 1
+
+def fix_e2_off():
+	global peg_e2
+	peg_e2.value =0
 

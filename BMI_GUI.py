@@ -259,6 +259,10 @@ startPbButton.pack(side = "top")
 stopPbButton = Tk.Button(BMIVarsFrame, text = "Stop playback")
 stopPbButton.pack(side="top")
 
+pegE1Var = Tk.IntVar()
+pegE1Check = Tk.Checkbutton(BMIVarsFrame, text = "Fix E1", 
+	varibale = pegE1Var, command = pegE1)
+
 scoreLabelVar = Tk.StringVar()
 scoreLabel = Tk.Label(BMIVarsFrame, textvariable = scoreLabelVar)
 scoreLabel.pack(side = "top")
@@ -305,9 +309,10 @@ def start_BMI():
 		timeout = int(timeLimitEntry.entryString.get())
 		timeout_pause = int(timeOutEntry.entryString.get())
 		save_file = saveFileEntry.entryString.get()
+		e1_mean,e2_mean = BMI_baseline.ensemble_means(baselineFile.entryString.get())
 		#set params
 		BMI_engine_rn.start_BMI(e1_list, e2_list, samp_int, smooth_int, timeout, timeout_pause, 
-			t1, t2, mid, min_freq, max_freq, save_file)
+			t1, t2, mid, min_freq, max_freq, save_file, e1_mean, e2_mean)
 
 def stop_BMI():
 	BMI_engine_rn.stop_BMI()
@@ -339,9 +344,10 @@ def set_params():
 		timeout = int(timeLimitEntry.entryString.get())
 		timeout_pause = int(timeOutEntry.entryString.get())
 		save_file = saveFileEntry.entryString.get()
+		e1_mean,e2_mean = BMI_baseline.ensemble_means(baselineFile.entryString.get())
 		#set params
 		BMI_engine_rn.set_globals(e1_list, e2_list, samp_int, smooth_int, timeout, timeout_pause, t1, 
-			t2, mid, min_freq, max_freq, save_file)
+			t2, mid, min_freq, max_freq, save_file, e1_mean, e2_mean)
 		playback.set_globals(samp_int,smooth_int,timeout,timeout_pause,save_file)
 
 def collect_baseline():
