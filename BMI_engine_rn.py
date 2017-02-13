@@ -37,12 +37,6 @@ global_vars = {
 	"e2_mean":0
 }
 
-##trigger the nidaq channels to make sure they are set at 0
-br.trig_nidaq(global_vars['abet_dev'],global_vars['start_trigger'][0],global_vars['start_trigger'][1])
-br.trig_nidaq(global_vars['abet_dev'],global_vars['video_trigger'][0],global_vars['video_trigger'][1])
-br.trig_nidaq(global_vars['abet_dev'],global_vars['trial_trigger'][0],global_vars['trial_trigger'][1])
-br.trig_nidaq(global_vars['abet_dev'],global_vars['t1_port'][0],global_vars['t1_port'][1])
-br.trig_nidaq(global_vars['abet_dev'],global_vars['t2_port'][0],global_vars['t2_port'][1])
 
 ##global state variable to be shared between processes
 engage = Value('i', 0)
@@ -125,11 +119,11 @@ def start_BMI(e1_list, e2_list, samp_int, smooth_int, timeout, timeout_pause,
 	#timeout clock function
 	timer_p = Process(target = timeout_clock, args = (engage, time_remaining))
 	##start the processes
+	##trigger the recording
+	# br.trig_nidaq_ex(global_vars['abet_dev'],global_vars['start_trigger'][0],global_vars['start_trigger'][1],100)
+	# br.trig_nidaq_ex(global_vars['abet_dev'],global_vars['video_trigger'][0],global_vars['video_trigger'][1],100)
 	decoder_p.start()
 	timer_p.start()
-	##trigger the recording
-	br.trig_nidaq_ex(global_vars['abet_dev'],global_vars['start_trigger'][0],global_vars['start_trigger'][1],100)
-	br.trig_nidaq_ex(global_vars['abet_dev'],global_vars['video_trigger'][0],global_vars['video_trigger'][1],100)
 
 ##function to stop BMI
 def stop_BMI():
@@ -156,6 +150,8 @@ def decoder(var_dict, engage_var, timer_var, peg_e1_var, peg_e2_var, num_t1, num
 	map_func = baseline.map_to_freq(var_dict['t2'], var_dict['mid'], var_dict['t1'], 
 		var_dict['min_freq'], var_dict['max_freq'])
 	##chack the global engage variable
+	br.trig_nidaq_ex(global_vars['abet_dev'],global_vars['start_trigger'][0],global_vars['start_trigger'][1],100)
+	br.trig_nidaq_ex(global_vars['abet_dev'],global_vars['video_trigger'][0],global_vars['video_trigger'][1],100)
 	br.trig_nidaq_ex(var_dict['abet_dev'],var_dict['trial_trigger'][0],var_dict['trial_trigger'][1],100)
 	while engage_var.value != 0:
 		##acquire the cursor value and set the feedback accordingly
@@ -243,6 +239,7 @@ def decoder(var_dict, engage_var, timer_var, peg_e1_var, peg_e2_var, num_t1, num
 	br.stop_feedback()
 	br.disconnect_client()
 	fileout.close()
+	br.trig_nidaq_ex(global_vars['abet_dev'],global_vars['video_trigger'][0],global_vars['video_trigger'][1],100)
 	print "BMI stopped!"
 
 ##a function to compute the cursor value

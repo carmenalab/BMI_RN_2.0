@@ -14,6 +14,19 @@ import BMI_engine_rn
 import BMI_RN as br
 import playback
 import os
+
+##trigger the nidaq channels to make sure they are set at 0
+br.trig_nidaq(BMI_engine_rn.global_vars['abet_dev'],BMI_engine_rn.global_vars['start_trigger'][0],
+	BMI_engine_rn.global_vars['start_trigger'][1])
+br.trig_nidaq(BMI_engine_rn.global_vars['abet_dev'],BMI_engine_rn.global_vars['video_trigger'][0],
+	BMI_engine_rn.global_vars['video_trigger'][1])
+br.trig_nidaq(BMI_engine_rn.global_vars['abet_dev'],BMI_engine_rn.global_vars['trial_trigger'][0],
+	BMI_engine_rn.global_vars['trial_trigger'][1])
+br.trig_nidaq(BMI_engine_rn.global_vars['abet_dev'],BMI_engine_rn.global_vars['t1_port'][0],
+	BMI_engine_rn.global_vars['t1_port'][1])
+br.trig_nidaq(BMI_engine_rn.global_vars['abet_dev'],BMI_engine_rn.global_vars['t2_port'][0],
+	BMI_engine_rn.global_vars['t2_port'][1])
+
 # implement the default mpl key bindings
 ##GLOBAL VARIABLES
 
