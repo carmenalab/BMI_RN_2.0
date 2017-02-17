@@ -161,7 +161,7 @@ def decoder(var_dict, engage_var, timer_var, peg_e1_var, peg_e2_var, num_t1, num
 		fb = map_func(cursor)
 		br.set_feedback(fb)
 		##write this data to file
-		fileout.write(str(E1)+","+str(E2)+","str(fb)+"\n") ##this will save E1 and E2 vals, feedback val on a line for each sample
+		fileout.write(str(E1)+","+str(E2)+","+str(fb)+"\n") ##this will save E1 and E2 vals, feedback val on a line for each sample
 		##check for T1
 		if cursor >= var_dict['t1']:
 			##create a timestamp

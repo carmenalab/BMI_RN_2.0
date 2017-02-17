@@ -21,7 +21,7 @@ def random_reward(session_len):
 	##while you haven't exceeded the session length:
 	while counter < session_len:
 		#get a random time to pause for
-		pause = np.random.randint(50, 100)
+		pause = np.random.randint(40, 80)
 		##pause
 		time.sleep(pause)
 		##send a signal to behavior box

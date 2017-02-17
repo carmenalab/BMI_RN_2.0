@@ -5,6 +5,7 @@ import BMI_RN as br
 import os
 from multiprocessing import Process, Value, Array
 import time
+import re
 
 
 ##a dictionary of global variables
