@@ -55,14 +55,15 @@ def read_line(string):
 	label = None
 	timestamp = None
 	if string is not '':
-		##figure out where the comma is that separates
-		##the timestamp and the event label
-		comma_idx = string.index(',')
-		##the cursor val is everything in front of the comma
-		cval = string[:comma_idx]
+		##figure out where the commas are that separate E1 and E2
+		comma_idx = [m.start() for m in re.finditer(',',string)]
+		##the E1 val is everything in front of comma 1
+		E1_val = string[:comma_idx[0]]
+		##the E2 val is everything in between comma 1 and 2
+		E2_val = string[comma_idx[0]+1:comma_idx[1]]
 		##the frequency is everything after but not the return character
-		freq = string[comma_idx+1:-1]
-	return float(cval), float(freq)
+		freq = string[comma_idx[1]+1:-1]
+	return float(E1_val)-float(E2_val), float(freq)
 
 ###A function to spawn a process to run the playback. Input args are taken from start_BMI
 def start_playback(samp_int,smooth_int,timeout,timeout_pause,log_file,max_freq,min_freq):

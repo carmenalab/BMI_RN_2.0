@@ -156,11 +156,12 @@ def decoder(var_dict, engage_var, timer_var, peg_e1_var, peg_e2_var, num_t1, num
 	while engage_var.value != 0:
 		##acquire the cursor value and set the feedback accordingly
 		time.sleep(var_dict['samp_int']/1000.0)
-		cursor = calc_cursor(peg_e1_var, peg_e2_var, var_dict['e1_mean'], var_dict['e2_mean'])
+		E1,E2 = calc_cursor(peg_e1_var, peg_e2_var, var_dict['e1_mean'], var_dict['e2_mean'])
+		cursor = E1-E2
 		fb = map_func(cursor)
 		br.set_feedback(fb)
 		##write this data to file
-		fileout.write(str(cursor)+","+str(fb)+"\n") ##this will save cursor val, feedback val on a line for each sample
+		fileout.write(str(E1)+","+str(E2)+","str(fb)+"\n") ##this will save E1 and E2 vals, feedback val on a line for each sample
 		##check for T1
 		if cursor >= var_dict['t1']:
 			##create a timestamp
@@ -178,10 +179,12 @@ def decoder(var_dict, engage_var, timer_var, peg_e1_var, peg_e2_var, num_t1, num
 			##pause for reward
 			time.sleep(3)
 			##resume feedback
-			br.resume_feedback(map_func(calc_cursor(peg_e1_var, peg_e2_var, var_dict['e1_mean'], var_dict['e2_mean'])))
+			e1,e2 = calc_cursor(peg_e1_var, peg_e2_var, var_dict['e1_mean'], var_dict['e2_mean'])
+			br.resume_feedback(map_func(e1-e2))
 			##check for back to baseline
 			while cursor >= var_dict['mid']:
-				cursor = calc_cursor(peg_e1_var, peg_e2_var, var_dict['e1_mean'], var_dict['e2_mean'])
+				E1,E2 = calc_cursor(peg_e1_var, peg_e2_var, var_dict['e1_mean'], var_dict['e2_mean'])
+				cursor = E1-E2
 				br.set_feedback(map_func(cursor))
 				time.sleep(var_dict['samp_int']/1000.0)
 			print "Back to baseline"
@@ -205,10 +208,12 @@ def decoder(var_dict, engage_var, timer_var, peg_e1_var, peg_e2_var, num_t1, num
 			##pause for reward
 			time.sleep(3)
 			##resume feedback
-			br.resume_feedback(map_func(calc_cursor(peg_e1_var, peg_e2_var, var_dict['e1_mean'], var_dict['e2_mean'])))
+			e1,e2 = calc_cursor(peg_e1_var, peg_e2_var, var_dict['e1_mean'], var_dict['e2_mean'])
+			br.resume_feedback(map_func(e1-e2))
 			##check for back to baseline
 			while cursor <= var_dict['mid']:
-				cursor = calc_cursor(peg_e1_var, peg_e2_var, var_dict['e1_mean'], var_dict['e2_mean'])
+				E1,E2 = calc_cursor(peg_e1_var, peg_e2_var, var_dict['e1_mean'], var_dict['e2_mean'])
+				cursor = E1-E2
 				br.set_feedback(map_func(cursor))
 				time.sleep(var_dict['samp_int']/1000.0)
 			print "Back to baseline"
@@ -231,7 +236,8 @@ def decoder(var_dict, engage_var, timer_var, peg_e1_var, peg_e2_var, num_t1, num
 			##pause for given timeout
 			time.sleep(var_dict['timeout_pause'])
 			##resume feedback
-			br.resume_feedback(map_func(calc_cursor(peg_e1_var, peg_e2_var, var_dict['e1_mean'], var_dict['e2_mean'])))
+			e1,e2 = calc_cursor(peg_e1_var, peg_e2_var, var_dict['e1_mean'], var_dict['e2_mean'])
+			br.resume_feedback(map_func(e1-e2))
 			##reset clock
 			timer_var.value = var_dict['timeout']
 			br.trig_nidaq_ex(var_dict['abet_dev'],var_dict['trial_trigger'][0],var_dict['trial_trigger'][1],100)
@@ -249,7 +255,7 @@ def calc_cursor(peg_e1,peg_e2,e1_mean,e2_mean):
 		E1 = e1_mean
 	if peg_e2.value:
 		E2 = e2_mean
-	return E1-E2
+	return E1,E2
 
 
 """
