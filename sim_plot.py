@@ -25,7 +25,7 @@ class SubplotAnimation(animation.TimedAnimation):
         self.timeout_pause = timeout_pause
         ##now get the data arrays from the log file
         self.e1,self.e2,self.cval = self.parse_log()
-        self.x = np.arange(self.e1.size)
+        self.x = np.arange(-2000/self.bin_size,0)
         self.t1 = np.ones(self.e1.size)*t1_val
         self.t2 = np.ones(self.e2.size)*t2_val
         self.mid = np.ones(self.e1.size)*mid_val
@@ -33,8 +33,8 @@ class SubplotAnimation(animation.TimedAnimation):
         ##add labels, etc
         ax1.set_ylabel('Cursor value',fontsize=14)
         ax1.set_xlabel('Bins',fontsize=14)
-        #ax1.set_ylim(t2_val-0.15,t1_val+0.15)
-        #ax1.set_xlim(-2000/bin_size, 2) ##this should give us 2 secs of data visible
+        ax1.set_ylim(t2_val-0.15,t1_val+0.15)
+        ax1.set_xlim(-2000/bin_size, 2) ##this should give us 2 secs of data visible
         ##add the lines to this plot for the cursor
         self.line1 = Line2D([], [], color='black',linewidth=2) ##our cursor line
         self.line1t1 = Line2D([], [], color='red', linewidth=3,alpha=0.5) ##the T1 line crossing
@@ -44,23 +44,23 @@ class SubplotAnimation(animation.TimedAnimation):
         ax1.add_line(self.line1t1)
         ax1.add_line(self.line1t2)
         ax1.add_line(self.line1mid)
-        ax1.set_aspect('equal', 'datalim')
+        #ax1.set_aspect('equal', 'datalim')
 
         ##add the stuff for the E1 plot
         ax2.set_ylabel('Sum of E1 spikes',fontsize=14)
         ax2.set_xlabel('Bins',fontsize=14)
         self.line2 = Line2D([], [], color='green',linewidth=2)
         ax2.add_line(self.line2)
-        #ax2.set_xlim(-2000/bin_size, 2)
-        #ax2.set_ylim(0, self.e1.max()+1)
+        ax2.set_xlim(-2000/bin_size, 2)
+        ax2.set_ylim(0, np.nanmax(self.e1)+1)
 
         ##add the stuff for the E2 plot
         ax3.set_xlabel('Bins',fontsize=14)
         ax3.set_ylabel('Sum of E2 spikes',fontsize=14)
         self.line3 = Line2D([], [], color='blue',linewidth=2)
         ax3.add_line(self.line3)
-        #ax3.set_xlim(-2000/bin_size, 2)
-        #ax3.set_ylim(0, self.e2.max()+1)
+        ax3.set_xlim(-2000/bin_size, 2)
+        ax3.set_ylim(0, np.nanmax(self.e2)+1)
 
         animation.TimedAnimation.__init__(self, fig, interval=bin_size, blit=True)
 
