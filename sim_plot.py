@@ -30,39 +30,62 @@ class SubplotAnimation(animation.TimedAnimation):
         self.t1 = np.ones(self.e1.size)*t1_val
         self.t2 = np.ones(self.e2.size)*t2_val
         self.mid = np.ones(self.e1.size)*mid_val
-        self.show_n = -2000/self.bin_size ##number of bins to show (here it's 2 sec worth)
+        self.show_n = 2000/self.bin_size ##number of bins to show (here it's 2 sec worth)
 
         ##add labels, etc
-        ax1.set_ylabel('Cursor value',fontsize=14)
+        ax1.set_ylabel('Value, A.U.',fontsize=14)
+        ax1.yaxis.set_label_position("right")
         ax1.set_xlabel('Bins',fontsize=14)
         ax1.set_ylim(t2_val-0.15,t1_val+0.15)
-        ax1.set_xlim(self.show_n, 2) ##this should give us 2 secs of data visible
+        ax1.set_xlim(-self.show_n, 2) ##this should give us 2 secs of data visible
+        ax1.set_title("Cursor value",fontsize=14,weight='bold')
         ##add the lines to this plot for the cursor
         self.line1 = Line2D([], [], color='black',linewidth=2) ##our cursor line
-        self.line1t1 = Line2D([], [], color='red', linewidth=3,alpha=0.5) ##the T1 line crossing
-        self.line1t2 = Line2D([], [], color='black', linewidth=3,alpha=0.5) ##the T2 line crossing
-        self.line1mid = Line2D([], [], color='black', linewidth=1) ##the mid line crossing
+        self.line1t1 = Line2D([], [], color='red', linewidth=3,alpha=0.5,label="Rewarded target") ##the T1 line crossing
+        self.line1t2 = Line2D([], [], color='black', linewidth=3,alpha=0.5,label="Unrewarded target") ##the T2 line crossing
+        self.line1mid = Line2D([], [], color='black', linewidth=1,label="Baseline") ##the mid line crossing
         ax1.add_line(self.line1)
         ax1.add_line(self.line1t1)
         ax1.add_line(self.line1t2)
         ax1.add_line(self.line1mid)
+        ax1.set_yticks([self.t2_val,self.mid_val,self.t1_val])
+        ax1.set_yticklabels(['Unewarded','Baseline','Rewarded'])
+        for ticklabel in ax1.get_xticklabels():
+            ticklabel.set_fontsize(14)
+        for ticklabel in ax1.get_yticklabels():
+            ticklabel.set_fontsize(14)
+        #legend=ax1.legend(bbox_to_anchor=(1.2, 1))
+        #legend.get_frame().set_facecolor('none')
+
         #ax1.set_aspect('equal', 'datalim')
 
         ##add the stuff for the E1 plot
         ax2.set_ylabel('Sum of E1 spikes',fontsize=14)
         ax2.set_xlabel('Bins',fontsize=14)
+        ax2.set_title("Ensemble 1 value",fontsize=14,weight='bold')
         self.line2 = Line2D([], [], color='green',linewidth=2)
         ax2.add_line(self.line2)
-        ax2.set_xlim(self.show_n, 2)
+        ax2.set_xlim(-self.show_n, 2)
         ax2.set_ylim(0, np.nanmax(self.e1)+1)
+        for ticklabel in ax2.get_xticklabels():
+            ticklabel.set_fontsize(14)
+        for ticklabel in ax2.get_yticklabels():
+            ticklabel.set_fontsize(14)
 
         ##add the stuff for the E2 plot
         ax3.set_xlabel('Bins',fontsize=14)
         ax3.set_ylabel('Sum of E2 spikes',fontsize=14)
+        ax3.set_title("Ensemble 2 value",fontsize=14,weight='bold')
         self.line3 = Line2D([], [], color='blue',linewidth=2)
         ax3.add_line(self.line3)
-        ax3.set_xlim(self.show_n, 2)
+        ax3.set_xlim(-self.show_n, 2)
         ax3.set_ylim(0, np.nanmax(self.e2)+1)
+        ax3.yaxis.tick_right()
+        ax3.yaxis.set_label_position("right")
+        for ticklabel in ax3.get_xticklabels():
+            ticklabel.set_fontsize(14)
+        for ticklabel in ax3.get_yticklabels():
+            ticklabel.set_fontsize(14)
 
         animation.TimedAnimation.__init__(self, fig, interval=bin_size, blit=True)
 
