@@ -86,6 +86,8 @@ class SubplotAnimation(animation.TimedAnimation):
             ticklabel.set_fontsize(14)
         for ticklabel in ax3.get_yticklabels():
             ticklabel.set_fontsize(14)
+        #fig.set_size_inches(10,10)
+        plt.tight_layout()
 
         animation.TimedAnimation.__init__(self, fig, interval=bin_size, blit=True)
 
@@ -169,5 +171,6 @@ class SubplotAnimation(animation.TimedAnimation):
         return e1, e2, cval
 
 ani = SubplotAnimation(1.2,-1.2,0,r"C:\Users\Ryan\Desktop\log.txt")
+ani.save(r"C:\Users\Ryan\Desktop\test_ani.mp4")
 plt.show()
 
