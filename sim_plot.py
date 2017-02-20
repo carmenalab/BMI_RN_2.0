@@ -26,15 +26,17 @@ class SubplotAnimation(animation.TimedAnimation):
         ##now get the data arrays from the log file
         self.e1,self.e2,self.cval = self.parse_log()
         self.x = np.arange(-2000/self.bin_size,0)
+        self.t = np.arange(self.e1.size)
         self.t1 = np.ones(self.e1.size)*t1_val
         self.t2 = np.ones(self.e2.size)*t2_val
         self.mid = np.ones(self.e1.size)*mid_val
+        self.show_n = -2000/self.bin_size ##number of bins to show (here it's 2 sec worth)
 
         ##add labels, etc
         ax1.set_ylabel('Cursor value',fontsize=14)
         ax1.set_xlabel('Bins',fontsize=14)
         ax1.set_ylim(t2_val-0.15,t1_val+0.15)
-        ax1.set_xlim(-2000/bin_size, 2) ##this should give us 2 secs of data visible
+        ax1.set_xlim(self.show_n, 2) ##this should give us 2 secs of data visible
         ##add the lines to this plot for the cursor
         self.line1 = Line2D([], [], color='black',linewidth=2) ##our cursor line
         self.line1t1 = Line2D([], [], color='red', linewidth=3,alpha=0.5) ##the T1 line crossing
@@ -51,7 +53,7 @@ class SubplotAnimation(animation.TimedAnimation):
         ax2.set_xlabel('Bins',fontsize=14)
         self.line2 = Line2D([], [], color='green',linewidth=2)
         ax2.add_line(self.line2)
-        ax2.set_xlim(-2000/bin_size, 2)
+        ax2.set_xlim(self.show_n, 2)
         ax2.set_ylim(0, np.nanmax(self.e1)+1)
 
         ##add the stuff for the E2 plot
@@ -59,28 +61,29 @@ class SubplotAnimation(animation.TimedAnimation):
         ax3.set_ylabel('Sum of E2 spikes',fontsize=14)
         self.line3 = Line2D([], [], color='blue',linewidth=2)
         ax3.add_line(self.line3)
-        ax3.set_xlim(-2000/bin_size, 2)
+        ax3.set_xlim(self.show_n, 2)
         ax3.set_ylim(0, np.nanmax(self.e2)+1)
 
         animation.TimedAnimation.__init__(self, fig, interval=bin_size, blit=True)
 
     def _draw_frame(self, framedata):
+        
         i = framedata
 
-        self.line1.set_data(self.x[:i], self.cval[:i])
-        self.line1t1.set_data(self.x[:i], self.t1[:i])
-        self.line1t2.set_data(self.x[:i], self.t2[:i])
-        self.line1mid.set_data(self.x[:i], self.mid[:i])
+        self.line1.set_data(self.x[:], self.cval[i-self.show_n:i])
+        self.line1t1.set_data(self.x[:], self.t1[i-self.show_n:i])
+        self.line1t2.set_data(self.x[:], self.t2[i-self.show_n:i])
+        self.line1mid.set_data(self.x[:], self.mid[i-self.show_n:i])
 
-        self.line2.set_data(self.x[:i], self.e1[:i])
+        self.line2.set_data(self.x[:], self.e1[i-self.show_n:i])
 
-        self.line3.set_data(self.x[:i], self.e2[:i])
+        self.line3.set_data(self.x[:], self.e2[i-self.show_n:i])
 
         self._drawn_artists = [self.line1, self.line1t1, self.line1t2, self.line1mid,
                                self.line2, self.line3]
 
     def new_frame_seq(self):
-        return iter(range(self.x.size))
+        return iter(np.arange(self.show_n, self.t.size))
 
     def _init_draw(self):
         lines = [self.line1, self.line1t1, self.line1t2,
