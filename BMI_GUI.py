@@ -15,6 +15,7 @@ import BMI_RN as br
 import playback
 import os
 
+br.connect_client()
 ##trigger the nidaq channels to make sure they are set at 0
 br.trig_nidaq(BMI_engine_rn.global_vars['abet_dev'],BMI_engine_rn.global_vars['start_trigger'][0],
 	BMI_engine_rn.global_vars['start_trigger'][1])
@@ -446,13 +447,19 @@ def stopPlayback():
 
 def peg_e1():
 	if pegE1Var.get():
+		br.connect_client()
 		BMI_engine_rn.fix_e1_on()
+		br.send_event(8)
+		br.disconnect_client()
 	elif not pegE1Var.get():
 		BMI_engine_rn.fix_e1_off()
 
 def peg_e2():
 	if pegE2Var.get():
+		br.connect_client()
 		BMI_engine_rn.fix_e2_on()
+		br.send_event(9)
+		br.disconnect_client()
 	elif not pegE2Var.get():
 		BMI_engine_rn.fix_e2_off()
 

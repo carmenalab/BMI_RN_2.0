@@ -34,9 +34,10 @@ global_vars = {
 	"save_file":r"D:\data\test.txt",
 	"reward_time":1000,
 	"e1_mean":0,
-	"e2_mean":0
+	"e2_mean":0,
+	"fix_e1":8,
+	"fix_e2":9
 }
-
 
 ##global state variable to be shared between processes
 engage = Value('i', 0)
@@ -292,6 +293,7 @@ def fix_e1_off():
 def fix_e2_on():
 	global peg_e2
 	peg_e2.value = 1
+
 
 def fix_e2_off():
 	global peg_e2
